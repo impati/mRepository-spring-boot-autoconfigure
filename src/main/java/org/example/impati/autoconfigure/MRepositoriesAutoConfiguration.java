@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.example.impati.core.MRepository;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -31,13 +32,21 @@ public class MRepositoriesAutoConfiguration {
                 // 1) 스캔 기준 패키지 결정
                 List<String> bases = new ArrayList<>();
                 if (registry instanceof DefaultListableBeanFactory dlbf && AutoConfigurationPackages.has(dlbf)) {
-                    bases.addAll(AutoConfigurationPackages.get(dlbf)); // @SpringBootApplication 패키지들
+                    List<String> c = AutoConfigurationPackages.get(dlbf);
+                    bases.addAll(c); // @SpringBootApplication 패키지들
                 } else {
                     return; // 기준이 없으면 스킵 (원하면 예외로 바꿔도 됨)
                 }
 
                 // 2) 인터페이스 스캐너 (컴포넌트 스캔 아님)
-                var scanner = new ClassPathScanningCandidateComponentProvider(false);
+                var scanner = new ClassPathScanningCandidateComponentProvider(false) {
+                    @Override
+                    protected boolean isCandidateComponent(AnnotatedBeanDefinition bd) {
+                        // 인터페이스도 후보로 인정
+                        var md = bd.getMetadata();
+                        return md.isIndependent(); // (기존 기본값은 concrete class 위주)
+                    }
+                };
                 scanner.addIncludeFilter(new AssignableTypeFilter(MRepository.class));
 
                 // 3) 후보 인터페이스 → FactoryBean 등록
@@ -57,7 +66,6 @@ public class MRepositoriesAutoConfiguration {
                             var fbd = BeanDefinitionBuilder
                                     .genericBeanDefinition(MRepositoryFactoryBean.class)
                                     .addConstructorArgValue(repoItf)
-                                    .addConstructorArgValue(entityType)
                                     .getBeanDefinition();
 
                             String beanName = Introspector.decapitalize(repoItf.getSimpleName());
