@@ -4,10 +4,12 @@ import java.beans.Introspector;
 import java.util.ArrayList;
 import java.util.List;
 import org.example.impati.core.MRepository;
+import org.example.impati.core.method_invoker.MRepositoryMethodInvoker;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.AnnotatedBeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
@@ -25,7 +27,8 @@ import org.springframework.core.type.filter.AssignableTypeFilter;
 public class MRepositoriesAutoConfiguration {
 
     @Bean
-    static BeanDefinitionRegistryPostProcessor mRepositoriesRegistrar() {
+    public BeanDefinitionRegistryPostProcessor mRepositoriesRegistrar(List<MRepositoryMethodInvoker<?>> methodInvokers) {
+
         return new BeanDefinitionRegistryPostProcessor() {
             @Override
             public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
@@ -63,14 +66,23 @@ public class MRepositoriesAutoConfiguration {
                                 throw new IllegalArgumentException("Cannot resolve <E> for " + repoItf.getName());
                             }
 
-                            var fbd = BeanDefinitionBuilder
-                                    .genericBeanDefinition(MRepositoryFactoryBean.class)
-                                    .addConstructorArgValue(repoItf)
-                                    .getBeanDefinition();
+                            AbstractBeanDefinition beanDefinition;
+                            if (methodInvokers.isEmpty()) {
+                                beanDefinition = BeanDefinitionBuilder
+                                        .genericBeanDefinition(MRepositoryFactoryBean.class)
+                                        .addConstructorArgValue(repoItf)
+                                        .getBeanDefinition();
+                            } else {
+                                beanDefinition = BeanDefinitionBuilder
+                                        .genericBeanDefinition(MRepositoryFactoryBean.class)
+                                        .addConstructorArgValue(repoItf)
+                                        .addConstructorArgValue(methodInvokers)
+                                        .getBeanDefinition();
+                            }
 
                             String beanName = Introspector.decapitalize(repoItf.getSimpleName());
                             if (!registry.containsBeanDefinition(beanName)) {
-                                registry.registerBeanDefinition(beanName, fbd);
+                                registry.registerBeanDefinition(beanName, beanDefinition);
                             }
                         } catch (ClassNotFoundException e) {
                             throw new IllegalStateException(e);
