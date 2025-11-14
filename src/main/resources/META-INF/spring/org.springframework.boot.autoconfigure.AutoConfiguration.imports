@@ -1,1 +1,3 @@
 org.example.impati.autoconfigure.MRepositoriesAutoConfiguration
+org.example.impati.autoconfigure.BackupProcessorConfiguration
+org.example.impati.autoconfigure.MRepositoryConfiguration

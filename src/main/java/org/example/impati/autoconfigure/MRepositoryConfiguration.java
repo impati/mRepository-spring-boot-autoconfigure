@@ -5,13 +5,13 @@ import org.example.impati.core.backup.BackupRepository;
 import org.example.impati.core.backup.FileBackupRepository;
 import org.example.impati.core.backup.SimpleBackupMapper;
 import org.example.impati.core.method_invoker.MRepositoryMethodInvoker;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties(MRepositoryProperties.class)
 public class MRepositoryConfiguration {
 
