@@ -1,6 +1,7 @@
 package org.example.impati.autoconfigure;
 
 import java.util.List;
+import org.example.impati.core.backup.BackupMapper;
 import org.example.impati.core.backup.BackupRepository;
 import org.example.impati.core.backup.FileBackupRepository;
 import org.example.impati.core.backup.SimpleBackupMapper;
@@ -34,8 +35,8 @@ public class MRepositoryConfiguration {
             name = "backup-enable",
             havingValue = "true"
     )
-    public MEventHandler mEventHandler(MRepositoryProperties properties) {
-        return new MEventHandler(backupRepository(properties));
+    public MEventHandler mEventHandler(BackupMapper backupMapper, MRepositoryProperties properties) {
+        return new MEventHandler(backupRepository(backupMapper, properties));
     }
 
     @Bean
@@ -44,7 +45,17 @@ public class MRepositoryConfiguration {
             name = "backup-enable",
             havingValue = "true"
     )
-    public BackupRepository backupRepository(MRepositoryProperties properties) {
-        return new FileBackupRepository(new SimpleBackupMapper(), properties.getDir());
+    public BackupRepository backupRepository(BackupMapper backupMapper, MRepositoryProperties properties) {
+        return new FileBackupRepository(backupMapper, properties.getDir());
+    }
+
+    @Bean
+    @ConditionalOnProperty(
+            prefix = "m.repository",
+            name = "backup-enable",
+            havingValue = "true"
+    )
+    public BackupMapper backupMapper() {
+        return new SimpleBackupMapper();
     }
 }
