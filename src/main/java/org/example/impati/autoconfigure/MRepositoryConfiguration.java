@@ -5,10 +5,8 @@ import java.util.List;
 import org.example.impati.core.backup.BackupMapper;
 import org.example.impati.core.backup.BackupRepository;
 import org.example.impati.core.backup.FileBackupRepository;
-import org.example.impati.core.backup.SimpleBackupMapper;
 import org.example.impati.core.method_invoker.MRepositoryMethodInvoker;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationEventPublisher;
@@ -59,16 +57,5 @@ public class MRepositoryConfiguration {
     )
     public BackupMapper jacksonBackupMapper(ObjectMapper objectMapper) {
         return new JacksonMapper(objectMapper);
-    }
-
-    @Bean
-    @ConditionalOnProperty(
-            prefix = "m.repository",
-            name = "backup-enable",
-            havingValue = "true"
-    )
-    @ConditionalOnMissingBean(ObjectMapper.class)
-    public BackupMapper simpleBackupMapper() {
-        return new SimpleBackupMapper();
     }
 }
