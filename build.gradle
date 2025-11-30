@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.example.impati'
-version = '1.0.8'
+version = '1.0.10'
 
 
 java {
@@ -30,6 +30,10 @@ dependencyManagement {
     }
 }
 dependencies {
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.17.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.17.0'
+
     annotationProcessor "org.springframework.boot:spring-boot-autoconfigure-processor"
     implementation 'com.github.impati:mRepository:1.0.5'
     implementation 'org.springframework.boot:spring-boot-starter'
