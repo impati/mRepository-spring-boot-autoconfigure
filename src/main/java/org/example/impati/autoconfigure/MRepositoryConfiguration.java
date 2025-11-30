@@ -57,7 +57,7 @@ public class MRepositoryConfiguration {
             name = "backup-enable",
             havingValue = "true"
     )
-    public BackupMapper backupMapper(ObjectMapper objectMapper) {
+    public BackupMapper jacksonBackupMapper(ObjectMapper objectMapper) {
         return new JacksonMapper(objectMapper);
     }
 
@@ -68,7 +68,7 @@ public class MRepositoryConfiguration {
             havingValue = "true"
     )
     @ConditionalOnMissingBean(ObjectMapper.class)
-    public BackupMapper backupMapper() {
+    public BackupMapper simpleBackupMapper() {
         return new SimpleBackupMapper();
     }
 }
